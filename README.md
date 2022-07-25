@@ -1,4 +1,4 @@
-#Declarative text analysis through SQL
+# Declarative text analysis through SQL
 
 The repository contains a text mining library built on top of [YeSQL](https://github.com/athenarc/YeSQL/). 
 The library maps several text mining functionalities to reusable scalar, aggregate, and polymorphic table UDFs written in Python. Due to the
