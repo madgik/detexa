@@ -7,7 +7,7 @@ able to execute critical text mining analytical tasks faster than other popular 
 
 ## Publication
 
-"Declarative text analysis through SQL", Yannis Foufoulas, Eleni Zacharia, Harry Dimitropoulos, Natalia Manola and Yannis Ioannidis, Theory and Practice of Digital Libraries (TPDL), 2022
+"DΕΤΕΧΑ: Declarative Extensible Text Exploration and Analysis", Yannis Foufoulas, Eleni Zacharia, Harry Dimitropoulos, Natalia Manola and Yannis Ioannidis, Theory and Practice of Digital Libraries (TPDL), 2022
 
 ## Note
 
