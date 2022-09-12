@@ -17,7 +17,8 @@ List all functions with ` .functions `
 
 Explain a function with `.h functionname`
 
-Optional: Implement your own functions in a funcs directory and give it as a terminal parameter
+Optional: Implement your own functions in a funcs directory and give it as a terminal parameter.
+
 The natively supported functions are stored in DETEXA/functions/[row/aggregate/vtable] directory.
 
 
