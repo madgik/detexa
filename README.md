@@ -26,5 +26,5 @@ The natively supported functions are stored in DETEXA/functions/[row/aggregate/v
 
 ## Publication
 
-"DΕΤΕΧΑ: Declarative Extensible Text Exploration and Analysis", Yannis Foufoulas, Eleni Zacharia, Harry Dimitropoulos, Natalia Manola and Yannis Ioannidis, Theory and Practice of Digital Libraries (TPDL), 2022
+"DΕΤΕΧΑ: Declarative Extensible Text Exploration and Analysis", Yannis Foufoulas, Eleni Zacharia, Harry Dimitropoulos, Natalia Manola and Yannis Ioannidis, Theory and Practice of Digital Libraries (TPDL), 2022 (**Nominated for the Best Paper Award**)
 
