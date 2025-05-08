@@ -1,20 +1,25 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from accelerate import Accelerator
-import torch
-torch.cuda.empty_cache()
-import re
-accelerator = Accelerator()
-model_name = "mistralai/Mistral-7B-Instruct-v0.3"
-model_name = "meta-llama/Llama-2-13b-chat-hf"
-#model_name = "mistralai/Mistral-Nemo-Base-2407"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-    device_map="auto"
-)
+import warnings
+try:
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    from accelerate import Accelerator
+    import torch
+    torch.cuda.empty_cache()
+    import re
+    accelerator = Accelerator()
+    model_name = "mistralai/Mistral-7B-Instruct-v0.3"
+    model_name = "meta-llama/Llama-2-13b-chat-hf"
+    #model_name = "mistralai/Mistral-Nemo-Base-2407"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+        device_map="auto"
+    )
+    model = accelerator.prepare(model)
+except Exception as e:
+    warnings.warn(f"Warning: {str(e)}", UserWarning):
 
-model = accelerator.prepare(model)
+
 def llm_extract(val): 
     prompt = (
             f"Extract from the text snippet below info about datasets/data AND code/software availability if they exist, "
