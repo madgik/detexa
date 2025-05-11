@@ -17,7 +17,7 @@ try:
     )
     model = accelerator.prepare(model)
 except Exception as e:
-    warnings.warn(f"Warning: {str(e)}", UserWarning):
+    warnings.warn(f"Warning: {str(e)}", UserWarning)
 
 
 def llm_extract(val): 
