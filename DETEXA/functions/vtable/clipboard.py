@@ -47,7 +47,7 @@ class clipboard(vtbase.VT):
     def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
         import lib.pyperclip as clip
-        data=str(clip.getcb(), 'utf_8')
+        data=str(clip.getcb())
 
         if data.count('\n')>=data.count('\r'):
             data=data.split('\n')
