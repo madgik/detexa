@@ -15,6 +15,13 @@ This project provides an interactive interface and backend engine for configurin
 - **Backend Generator**: Converts UI configuration to executable SQL + UDF workflows.
 - **Execution Engine**: Runs workflows on compatible databases (e.g., PostgreSQL, DuckDB, SQLite).
 
+## 🎥 Demo
+
+Watch a short video demo of the workflow builder in action:
+
+👉 [Click here to view the demo](https://doi.org/10.5281/zenodo.16450765
+)
+
 ## ⚡ Example Use Case
 
 Extract and normalize Data Availability Statements (DAS) from research publications:
