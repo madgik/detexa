@@ -1,4 +1,4 @@
-# LLM-Enhanced DETEXA Workflow Builder
+# LLM-Enhanced DETEXA Workflow Builder (Alpha Version)
 
 This project provides an interactive interface and backend engine for configuring **semantic enrichment workflows** using DETEXA and **LLMs**. It enables users to combine traditional SQL-based text processing with targeted LLM-based enhancement through UDFs.
 
