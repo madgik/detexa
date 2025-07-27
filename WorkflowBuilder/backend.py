@@ -16,7 +16,7 @@ import traceback
 import re
 #import apsw 
 
-AUTH_TOKEN = "REMOVED_SECRET"
+AUTH_TOKEN = "SECRETKEY"
 
 # Add a relative path (e.g., "../myfolder" or "./subdir") to sys.path
 relative_path = "./detexa"
