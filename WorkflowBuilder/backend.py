@@ -84,7 +84,7 @@ def login_required(f):
 @app.route('/')
 @login_required
 def index():
-    return render_template('llm_extract.html')
+    return render_template('WorkflowBuilder.html')
 
 
 
