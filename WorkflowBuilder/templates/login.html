@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login with Token</title>
+  <style>
+    body { font-family: Arial; padding: 40px; background-color: #f0f0f0; }
+    form { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; }
+    input[type="text"] { width: 100%; padding: 10px; margin-top: 10px; }
+    input[type="submit"] { padding: 10px 20px; margin-top: 20px; }
+    .error { color: red; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <form method="POST">
+    <h2>Enter Access Token</h2>
+    <input type="text" name="token" placeholder="Token" required>
+    <input type="submit" value="Login">
+    {% if error %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login with Token</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ece9e6, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-form {
+      background-color: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-form h2 {
+      margin-bottom: 20px;
+      font-weight: 500;
+      color: #333;
+      text-align: center;
+    }
+
+    .login-form input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .login-form input[type="text"]:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+
+    .login-form input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .login-form input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    .error {
+      color: #d9534f;
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <form method="POST" class="login-form">
+    <h2>Access Token Login</h2>
+    <input type="text" name="token" placeholder="Enter your token" required>
+    <input type="submit" value="Login">
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+  </form>
+</body>
+</html>
+
+      <p class="error">{{ error }}</p>
+    {% endif %}
+  </form>
+</body>
+</html>
+
