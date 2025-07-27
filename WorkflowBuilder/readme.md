@@ -29,6 +29,6 @@ Watch a short video demo of the workflow builder in action:
 
 ## 🚀 Getting Started
 
-# 1. Clone the repository
-# 2. Decompress the sample database
-# 3. Run the backend.py using PyPy for better performance
+### 1. Clone the repository
+### 2. Decompress the sample database
+### 3. Run the backend.py using PyPy for better performance
