@@ -2,7 +2,7 @@
 
 This project provides a prototype of an interactive interface and backend engine for configuring **semantic enrichment workflows** using [DETEXA] and **LLMs**. It allows users to combine SQL-based text processing with targeted LLM-based enrichment through UDFs.
 
-> ⚠️ **Alpha version** — currently supports only **SQLite**. More engines and features coming soon!
+> ⚠️ **Alpha version** — currently supports **SQLite**. More engines and features coming soon!
 
 ## 🔍 Key Features
 
