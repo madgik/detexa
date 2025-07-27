@@ -32,3 +32,4 @@ Watch a short video demo of the workflow builder in action:
 1. Clone the repository
 2. Decompress the sample database
 3. Run the backend.py using PyPy for better performance
+4. Open browser at localhost:5000 
