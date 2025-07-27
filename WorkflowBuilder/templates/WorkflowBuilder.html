@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DETEXA+LLM Workflow Builder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <!-- Theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/darcula.min.css" />
+
+  <!-- Addon styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css" />
+
+  <!-- CodeMirror JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+
+  <!-- Languages -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <!-- Addons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/indent-fold.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/sql-hint.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css" />
+
+  <style>
+  
+.CodeMirror .error-line {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.custom-checkbox-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9em;
+  color: #333;
+  font-weight: 500;
+}
+
+.custom-checkbox-tooltip input[type="checkbox"] {
+  /* hide native checkbox */
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.custom-checkbox-tooltip > span {
+  position: relative;
+  padding-left: 28px;
+  user-select: none;
+}
+
+.custom-checkbox-tooltip > span::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: 2px solid #007BFF;
+  border-radius: 5px;
+  background-color: white;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.custom-checkbox-tooltip input[type="checkbox"]:checked + span::before {
+  background-color: #007BFF;
+  border-color: #007BFF;
+}
+
+.custom-checkbox-tooltip input[type="checkbox"]:checked + span::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  pointer-events: none;
+}
+
+/* Tooltip container */
+.custom-checkbox-tooltip span {
+  position: relative;
+}
+
+/* Tooltip text */
+.custom-checkbox-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 260px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px 10px;
+  position: absolute;
+  bottom: 125%; /* above the label */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85em;
+  line-height: 1.3;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Tooltip arrow */
+.custom-checkbox-tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+/* Show tooltip on hover or focus */
+.custom-checkbox-tooltip:hover .tooltip-text,
+.custom-checkbox-tooltip input[type="checkbox"]:focus + span .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+
+.custom-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9em;
+  color: #333;
+}
+
+
+.action-btn {
+ 
+  border: 1px solid #ccc;
+  padding: 10px 16px;
+  margin-right: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.action-btn.active {
+  background-color: #1e7e34; /* darker green for active */
+  border-color: #1c7430;
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.3);
+}
+
+
+.inline-error {
+  background: #ffd6d6;
+  color: #a00;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-left: 3px solid #a00;
+  margin-left: 10px;
+  border-radius: 4px;
+}
+
+
+  .cm-s-darcula span.cm-keyword {
+  color: #cc7832 !important;
+  font-weight: bold;
+}
+
+/* Highlight function names */
+.cm-s-darcula span.cm-def {
+  color: #ffc66d !important;
+}
+
+/* Highlight built-ins */
+.cm-s-darcula span.cm-builtin {
+  color: #a9b7c6 !important;
+}
+
+
+.CodeMirror {
+  height: auto;
+  min-height: 300px; /* Starting size */
+  max-height: none;
+  transition: height 0.2s ease;
+}
+
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    /* Styling the dataset section */
+.dataset-selector {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-top: 8px;
+}
+ .skip-message {
+    background-color: #ffe0e0;
+    border: 1px solid #d33;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 15px;
+    font-family: sans-serif;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .skip-message p {
+    color: #d33;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+  }
+
+ #results table {
+    margin-top: 0;
+  }
+.dataset-selector:focus {
+  outline: none;
+  border-color: #4caf50; /* Green border on focus */
+}
+
+.section label {
+  font-weight: bold;
+}
+
+.section select {
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.section select:hover {
+  background-color: #eef2f7;
+}
+.subsection {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd; /* Ελαφρύ γκρι πλαίσιο */
+    border-radius: 8px; /* Γωνίες με στρογγυλεμένο σχήμα */
+    background-color: #f9f9f9; /* Ελαφρύ φόντο για αντίθεση */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Ελαφρύ σκιά γύρω από το πλαίσιο */
+}
+    
+    .subsection input[type="range"] {
+        width: 100%;
+        margin-top: 5px;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #4CAF50;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    /* Container Styles */
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      margin-top: 20px;
+    }
+
+    /* Section Styling */
+    .section {
+      margin-bottom: 20px;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    /* Inputs and Labels */
+    label {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: #555;
+    }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background-color: #f7f7f7;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+    textarea {
+      font-family: 'Courier New', monospace;
+      min-height: 100px;
+    }
+    
+    /* Checkboxes Styling */
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .checkbox-group label {
+      display: inline-block;
+      margin-right: 20px;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    /* Buttons */
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /* Class Rule Styling */
+    .class-rule {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border: 1px dashed #bbb;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    .class-rule input[type="text"], .class-rule input[type="number"] {
+      display: inline-block;
+      width: calc(50% - 20px);
+      margin-right: 10px;
+    }
+    .patterns {
+      margin-top: 15px;
+    }
+    .patterns div {
+      margin-bottom: 10px;
+    }
+    #pythonBox, #sqlBox {
+  width: 100%;
+  overflow: hidden;
+  resize: none;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #aaa;
+}
+    
+    .box{
+    
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 1rem;
+    
+    }
+    /* Output area */
+    .output {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 1rem;
+    }
+    .results {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 1rem;
+    }
+
+    /* Animation */
+    .fadeIn {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    
+    
+     .draggable-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .draggable-list li {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .draggable-list li:hover {
+      background: #e0e7ff;
+    }
+
+    .draggable-list li.dragging {
+      opacity: 0.5;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    select, input[type="range"] {
+      margin-top: 0.3rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .rule {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .rule select {
+      flex: 1;
+      min-width: 120px;
+    }
+
+
+    button:hover {
+      background: #1e40af;
+    }
+
+    #threshold-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container fadeIn">
+    <h1>DETEXA+LLM Semantic Enrichment Workflow Builder and Executor</h1>
+   <div class="section">
+  <h2>1. Select Dataset</h2>
+  <label for="dataset">Choose a Dataset:</label>
+  <select id="dataset" class="dataset-selector"></select>
+</div>
+    <!-- Pattern Input Section -->
+    <div class="section">
+      <h2>2. Define Regex Pattern</h2>
+      <label for="pattern">Regex Pattern:</label>
+      <input type="text" id="pattern" placeholder="Enter your pattern here...">
+      <label class="custom-checkbox-tooltip">
+  <input type="checkbox" />
+  <span>Usually found in list or table
+    <span class="tooltip-text">
+      This option indicates that the main pattern often appears as part of a list or table 
+      of similar patterns in the text. It helps the algorithm understand and process grouped patterns more accurately.
+    </span>
+  </span>
+</label>
+    </div>
+
+    <!-- Normalization Options -->
+    <div class="section">
+      <h2>3. Normalization Options</h2>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="lowercase"> Lowercase</label>
+        <label><input type="checkbox" value="punctuation"> Remove Punctuation</label>
+        <label><input type="checkbox" value="stopwords"> Remove Stopwords</label>
+        <label><input type="checkbox" value="stem"> Stemming</label>
+        <label><input type="checkbox" value="lemmatization"> Lemmatization</label>
+        <label><input type="checkbox" value="numbers"> Remove Numbers</label>
+        <label><input type="checkbox" value="unicode"> Normalize Unicode</label>
+      </div>
+    </div>
+
+    <!-- Text Window Input Section -->
+    <div class="section">
+      <h2>4. Text Window Parameters</h2>
+      <label for="window_before">Words Before Match:</label>
+      <input type="number" id="window_before" value="5">
+      <label for="window_after">Words After Match:</label>
+      <input type="number" id="window_after" value="15">
+      <label for="window_max">Match length in token count:</label>
+      <input type="number" id="window_max" value="1">
+    </div>
+
+    <!-- LLM Prompt Section -->
+    <div class="section">
+      <h2>5. LLM Prompt</h2>
+      <label for="llm_prompt">Prompt Text:</label>
+      <textarea id="llm_prompt" placeholder="Provide LLM prompt..."></textarea>
+    </div>
+
+    <!-- Classification Rules Section -->
+    
+    <div class="section">
+      <h2>6. Classification Rules</h2>
+      <div id="input-method-selection" style="padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+  <button onclick="selectGlobalInputMethod('form')" style="padding: 8px 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Use Form</button>
+  <button onclick="selectGlobalInputMethod('csv')" style="padding: 8px 16px; background-color: #FF9800; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload CSV</button>
+</div>
+     <div id="class_rules"></div>
+
+<div style="display: flex; gap: 10px; margin-top: 10px;">
+  <button onclick="addClass()" style="display: none;" id="addclassbutton">
+    Add Class
+  </button>
+  <button id="change-method-button"
+          style="display: none; background-color: #6f42c1;"
+          onclick="resetInputMethod()">
+    Change Input
+  </button>
+</div>    
+</div>
+
+   
+
+  <div class="section" id = "aggregate_section">
+   <h2>7. Configure Aggregation Logic</h2>
+   <button id="configure-btn" onClick=load_aggregate_section('visible')>Configure</button>
+   <button id="skip" style = "background-color: #d33;" onClick=skip_aggregation()>Skip aggregation</button>
+<div id="config-container"></div>
+</div>
+  
+
+    <!-- Generate Button -->
+   <button onclick="generate(); setActive(this);" class="action-btn">Generate JSON Spec</button>
+
+<button onclick="generateQuery(true); setActive(document.getElementById('editor-btn'));" class="action-btn" id="generate-btn">Generate YeSQL</button>
+
+<button onclick="editQuery(); setActive(this);" style="display: none;" class="action-btn" id="editor-btn">YeSQL Code Editor</button>
+
+<button onclick="execute(); setActive(this);" class="action-btn">Execute</button>
+    <!-- Output Section -->
+    <div class="output" style="display: none;" id="output"></div>
+    <div class="box" style="display: none;" id="queryBoxContainer">
+        <textarea id="pythonBox"></textarea>
+        <textarea id="sqlBox"></textarea>
+    </div>
+    <div class="results" style="display: none;" id="results"></div>
+
+  </div>
+  
+  <script>
+
+
+  
+let globalInputMethod = null;
+const classRules = [];
+
+// Global input method selection
+function selectGlobalInputMethod(inputMethod) {
+  globalInputMethod = inputMethod;
+
+  // Hide method selection UI
+  document.getElementById('input-method-selection').style.display = 'none';
+
+  // Show "Change Method" button
+  document.getElementById('change-method-button').style.display = 'inline-block';
+
+  // Add first class rule container
+  addClass();
+}
+
+
+// lineNumber is 1-based line number from your backend
+function highlightErrorLine(lineNumber, message) {
+  const zeroBasedLine = lineNumber - 1;
+
+  // Highlight the line
+  pythonEditor.addLineClass(zeroBasedLine, "background", "error-line");
+
+  // Create and insert error message widget
+  const widget = document.createElement("div");
+  widget.className = "inline-error";
+  widget.textContent = message;
+
+  const lineWidget = pythonEditor.addLineWidget(zeroBasedLine, widget, {
+    above: false,
+    coverGutter: false,
+    noHScroll: true
+  });
+
+  // Function to remove both highlight and widget on edit
+  function onChanges(cm, changes) {
+    for (const change of changes) {
+      if (change.from.line <= zeroBasedLine && zeroBasedLine <= change.to.line) {
+        pythonEditor.removeLineClass(zeroBasedLine, "background", "error-line");
+        pythonEditor.removeLineWidget(lineWidget);
+        pythonEditor.off("changes", onChanges);
+        break;
+      }
+    }
+  }
+
+  // Listen for changes
+  pythonEditor.on("changes", onChanges);
+}
+
+
+
+// Add New Class Rule or Toggle CSV Upload
+function addClass() {
+  if (globalInputMethod === null) {
+    alert('Please select an input method first!');
+    return;
+  }
+
+  const classId = classRules.length;
+  const container = document.createElement('div');
+  container.className = 'class-rule';
+
+  if (globalInputMethod === 'form') {
+    const resultbox = document.getElementById('addclassbutton');
+    if (resultbox) resultbox.style.display = 'block';
+
+   container.innerHTML = `
+  <label>Class Name:</label>
+  <input type="text" class="class-name" placeholder="Class Name">
+  <button onclick="removeClass(this)" style="margin-top: 10px; background-color: darkred; color: white; border: none; border-radius: 5px; padding: 6px 12px;">Drop Class</button>
+
+  <div class="patterns">
+    <strong>Positive Patterns:</strong>
+    <div class="positive-patterns"></div>
+    <button onclick="addPattern(this, 'positive')">Add Positive</button>
+  </div>
+
+  <div class="patterns">
+    <strong>Negative Patterns:</strong>
+    <div class="negative-patterns"></div>
+    <button onclick="addPattern(this, 'negative')">Add Negative</button>
+  </div>
+
+  `;
+    document.getElementById('class_rules').appendChild(container);
+    classRules.push(container);
+
+  } else if (globalInputMethod === 'csv') {
+    container.innerHTML = `
+      <div style="padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">CSV Input:</label>
+        <input type="file" onchange="handleCSVUpload(this)" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 100%;">
+      </div>
+    `;
+    document.getElementById('class_rules').appendChild(container);
+  }
+}
+
+// 🔁 New function to reset input method
+function resetInputMethod() {
+  globalInputMethod = null;
+  if (globalInputMethod === 'csv'){
+  }
+      
+
+  // Clear all class rules and UI elements
+  const rulesContainer = document.getElementById('class_rules');
+  rulesContainer.innerHTML = '';
+  classRules.length = 0;
+
+  // Hide "Add Class" button if it exists
+  const resultbox = document.getElementById('addclassbutton');
+  if (resultbox) resultbox.style.display = 'none';
+
+  // Show selection UI again
+  document.getElementById('input-method-selection').style.display = 'block';
+
+  // Hide this button again
+  document.getElementById('change-method-button').style.display = 'none';
+}
+
+function addClassFromCSV(className, pattern, weight, isPositive) {
+  if (weight <= 0) {
+    alert('Weights must be positive.');
+    return;
+  }
+
+  let container = Array.from(document.querySelectorAll('.class-rule')).find(el =>
+    el.querySelector('.class-name')?.value === className
+  );
+
+  if (!container) {
+    const classId = classRules.length;
+    container = document.createElement('div');
+    container.className = 'class-rule';
+
+
+    container.innerHTML = `
+      <label>Class Name:</label>
+      <input type="text" class="class-name" value="${className}" placeholder="Class Name">
+      <button onclick="removeClass(this)" style="margin-top: 10px; background-color: darkred; color: white; border: none; border-radius: 5px; padding: 6px 12px;">Drop Class</button>
+      
+
+      <div class="patterns">
+        <strong>Positive Patterns:</strong>
+        <div class="positive-patterns"></div>
+        <button onclick="addPattern(this, 'positive')">Add Positive</button>
+      </div>
+
+      <div class="patterns">
+        <strong>Negative Patterns:</strong>
+        <div class="negative-patterns"></div>
+        <button onclick="addPattern(this, 'negative')">Add Negative</button>
+      </div>
+     
+    `;
+
+    document.getElementById('class_rules').appendChild(container);
+    classRules.push(container);
+  } else {
+    if (!classRules.includes(container)) {
+      classRules.push(container);
+    }
+  }
+
+  if (isPositive === 1) {
+    addPatternToContainer(container, 'positive', pattern, weight);
+  } else {
+    addPatternToContainer(container, 'negative', pattern, weight);
+  }
+  const resultbox = document.getElementById('addclassbutton');
+  if (resultbox) resultbox.style.display = 'block';
+}
+
+function removeClass(button) {
+  const container = button.closest('.class-rule');
+  if (!container) return;
+
+  // Remove from DOM
+  container.remove();
+
+  // Remove from classRules array
+  const index = classRules.indexOf(container);
+  if (index !== -1) {
+    classRules.splice(index, 1);
+  }
+
+  // Hide Add Class button if no classes remain
+  if (classRules.length === 0) {
+    const resultbox = document.getElementById('addclassbutton');
+    if (resultbox) resultbox.style.display = 'none';
+  }
+}
+
+function addPattern(button, type) {
+  const wrapper = button.previousElementSibling;
+  const div = document.createElement('div');
+  div.style.display = 'flex';
+  div.style.gap = '8px';
+  div.style.alignItems = 'center';
+  div.style.marginBottom = '5px';
+
+  div.innerHTML = `
+    <input type="text" placeholder="Pattern">
+    <input type="number" placeholder="Weight" value="1.0" step="0.1">
+    <label class="custom-checkbox-tooltip">
+      <input type="checkbox" class="positional" />
+      <span>Weight by distance
+        <span class="tooltip-text">
+          This option enables weighting patterns based on their token distance from the main pattern — 
+          closer matches have more influence.
+        </span>
+      </span>
+    </label>
+    <button title="Delete Pattern"
+      style="background: none; border: none; cursor: pointer; padding: 4px;"
+      onclick="this.parentElement.remove()">
+      <svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" fill="#d9534f">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M16 9v10H8V9h8m-1.5-6H9.5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12
+          c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/>
+      </svg>
+    </button>
+  `;
+  wrapper.appendChild(div);
+}
+
+
+function addPatternToContainer(container, type, pattern, weight) {
+  const wrapper = container.querySelector(`.${type}-patterns`);
+  if (!wrapper) {
+    console.warn(`Wrapper for type "${type}" not found`);
+    return;
+  }
+
+  const div = document.createElement('div');
+  div.style.display = 'flex';
+  div.style.gap = '8px';
+  div.style.alignItems = 'center';
+  div.style.marginBottom = '5px';
+
+  div.innerHTML = `
+    <input type="text" value="${pattern}" placeholder="Pattern">
+    <input type="number" value="${weight}" placeholder="Weight" step="0.1">
+    <label class="custom-checkbox-tooltip">
+      <input type="checkbox" class="positional" />
+      <span>Weight by distance
+        <span class="tooltip-text">
+          This option enables weighting patterns based on their token distance from the main pattern — 
+          closer matches have more influence.
+        </span>
+      </span>
+    </label>
+    <button title="Delete Pattern"
+      style="background: none; border: none; cursor: pointer; padding: 4px;"
+      onclick="this.parentElement.remove()">
+      <svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" fill="#d9534f">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M16 9v10H8V9h8m-1.5-6H9.5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12
+          c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/>
+      </svg>
+    </button>
+  `;
+
+  wrapper.appendChild(div);
+}
+
+function handleCSVUpload(inputElement) {
+  const file = inputElement.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    const csvData = event.target.result;
+    const lines = csvData.split('\n');
+
+    lines.forEach((line, idx) => {
+      if (!line.trim()) return;
+
+      const parts = line.split(',');
+      if (parts.length !== 4) {
+        console.warn(`Skipping invalid CSV line ${idx + 1}: ${line}`);
+        return;
+      }
+
+      const [className, pattern, weightStr, isPositiveStr] = parts.map(s => s.trim());
+      const weight = parseFloat(weightStr);
+      const isPositive = parseInt(isPositiveStr);
+
+      if (!className || !pattern || isNaN(weight) || (isPositive !== 0 && isPositive !== 1)) {
+        console.warn(`Skipping malformed line ${idx + 1}: ${line}`);
+        return;
+      }
+
+      addClassFromCSV(className, pattern, weight, isPositive);
+    });
+  };
+
+  reader.onerror = function() {
+    alert("Error reading CSV file.");
+  };
+
+  reader.readAsText(file);
+}
+
+function skip_aggregation() {
+    
+    const container = document.getElementById('config-container');
+    container.innerHTML = `
+        <div class="skip-message">
+            <p>🚫 Aggregation was skipped.</p>
+            <button class="undo-btn" onclick="undo_skip_aggregation()">Undo & Configure</button>
+        </div>
+    `;
+    aggregationSkipped = true;
+    document.getElementById('configure-btn').style.display = 'none';
+    document.getElementById('skip').style.display = 'none';
+}
+
+function undo_skip_aggregation() {
+    load_aggregate_section('visible');
+    aggregationSkipped = false;
+    document.getElementById('configure-btn').style.display = 'inline-block';
+    document.getElementById('skip').style.display = 'inline-block';
+}
+function getAggregationConfigJson() {
+  // 1. Get class priority order
+
+  const priorityItems = document.querySelectorAll('#priority-order li');
+  const priorityOrder = Array.from(priorityItems).map(li => li.textContent.trim());
+  // 2. Get confidence threshold
+  const thresholdInput = document.getElementById('confidence-threshold');
+  const confidenceThreshold = parseFloat(thresholdInput?.value || 0.5);
+
+  // 3. Get tie-breaking strategy
+  const tieStrategySelect = document.getElementById('tie-strategy');
+  const tieStrategy = tieStrategySelect?.value || 'priority';
+
+  // 4. Get custom rules
+  const ruleDivs = document.querySelectorAll('.rule');
+  const rules = Array.from(ruleDivs).map(rule => {
+    const selects = rule.querySelectorAll('select');
+    return {
+      source: selects[1].value,
+      condition: selects[2].value,
+      target: selects[4].value
+    };
+  });
+
+  // Final JSON structure
+  return {
+    priorityOrder,
+    confidenceThreshold,
+    tieStrategy,
+    rules
+  };
+}
+
+
+
+    // Generate JSON Spec
+    function generate(visibility = 'visible') {
+      if (visibility === 'visible'){
+        const output = document.getElementById('output');
+        output.style.display = 'block';
+        const queryBox = document.getElementById('queryBoxContainer');
+      queryBox.style.display = 'None';
+      const resultbox = document.getElementById('results');
+  	  resultbox.style.display = 'None';
+     }
+      
+      const dataset = document.getElementById("dataset").value;
+      const pattern = document.getElementById('pattern').value;
+      const normalization = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
+      const window = {
+        before: parseInt(document.getElementById('window_before').value),
+        after: parseInt(document.getElementById('window_after').value),
+        max: parseInt(document.getElementById('window_max').value),
+      };
+      const llm_prompt = document.getElementById('llm_prompt').value;
+      
+      const classes = classRules.map(rule => {
+        const className = rule.querySelector('.class-name').value;
+        const positive = Array.from(rule.querySelectorAll('.positive-patterns div')).map(div => {
+          return {
+            pattern: div.querySelector('input[type="text"]').value,
+            weight: parseFloat(div.querySelector('input[type="number"]').value),
+          };
+        });
+        const negative = Array.from(rule.querySelectorAll('.negative-patterns div')).map(div => {
+          return {
+            pattern: div.querySelector('input[type="text"]').value,
+            weight: parseFloat(div.querySelector('input[type="number"]').value),
+          };
+        });
+        return { name: className, positive, negative };
+      });
+      const container = document.getElementById("config-container");
+      if (container.innerHTML.trim() === "") {
+          load_aggregate_section('invisible');
+      }
+      let spec = { pattern, dataset, normalize: normalization, window, llm_prompt, classes };
+      if (aggregationSkipped === false){
+           let aggregations = getAggregationConfigJson();
+           spec = { pattern, dataset, normalize: normalization, window, llm_prompt, classes, aggregations };
+      }
+      document.getElementById('output').textContent = JSON.stringify(spec, null, 2);
+    }
+
+function generateNormalizeFunction(steps) {
+    let body = `def normalize(text):\n`;
+
+    if (steps.includes('lowercase')) {
+        body += `    text = text.lower()\n`;
+    }
+
+    if (steps.includes('punctuation')) {
+        body += `    import re\n`;
+        body += `    text = re.sub(r'[^a-z0-9 ]+', '', text)\n`;
+    }
+
+    if (steps.includes('stopwords')) {
+        body += `    stopwords = {'the','and','of','in','on'}  # customizable\n`;
+        body += `    text = ' '.join(w for w in text.split() if w not in stopwords)\n`;
+    }
+
+    if (steps.includes('stem')) {
+        body += `    from nltk.stem import PorterStemmer\n`;
+        body += `    ps = PorterStemmer()\n`;
+        body += `    text = ' '.join(ps.stem(w) for w in text.split())\n`;
+    }
+
+    body += `    return text\n`;
+
+    return body
+}
+
+function generateCombinedPattern() {
+  const classes = classRules.map(rule => {
+    const className = rule.querySelector('.class-name').value;
+    const positive = Array.from(rule.querySelectorAll('.positive-patterns div')).map(div => {
+      return {
+        pattern: div.querySelector('input[type="text"]').value,
+        weight: parseFloat(div.querySelector('input[type="number"]').value),
+        positional: div.querySelector('input.positional')?.checked ? 1 : 0,
+      };
+    });
+    const negative = Array.from(rule.querySelectorAll('.negative-patterns div')).map(div => {
+      return {
+        pattern: div.querySelector('input[type="text"]').value,
+        weight: parseFloat(div.querySelector('input[type="number"]').value),
+        positional: div.querySelector('input.positional')?.checked ? 1 : 0,
+      };
+    });
+    return { name: className, positive, negative };
+  });
+
+  const combinedPatternParts = [];
+  let groupIndex = 0;
+  const groupToInfo = {}; // To track the patterns' weights and classes
+
+  classes.forEach(classData => {
+    const className = classData.name;
+
+    // Process positive patterns
+    classData.positive.forEach(patternData => {
+      const pattern = patternData.pattern;
+      const weight = patternData.weight;
+      const positional = patternData.positional;
+      const groupName = `${className}__positive__${groupIndex}`;
+      combinedPatternParts.push(`(?P<${groupName}>${escapeRegExp(pattern)})`);
+      groupToInfo[groupName] = { className, polarity: 'positive', weight, positional };
+      groupIndex++;
+    });
+
+    // Process negative patterns
+    classData.negative.forEach(patternData => {
+      const pattern = patternData.pattern;
+      const weight = patternData.weight;
+      const positional = patternData.positional;
+      const groupName = `${className}__negative__${groupIndex}`;
+      combinedPatternParts.push(`(?P<${groupName}>${escapeRegExp(pattern)})`);
+      groupToInfo[groupName] = { className, polarity: 'negative', weight, positional };
+      groupIndex++;
+    });
+  });
+
+  const combinedPattern = combinedPatternParts.join("|");
+
+  // Return the combined pattern and the group-to-info mapping
+  return { combinedPattern, groupToInfo };
+}
+
+// Helper function to escape special characters in regex patterns
+function escapeRegExp(str) {
+    return str.replace(/[\.*+\?^=!:${}()|\[\]\/\\]/g, "\\$&");
+}
+
+
+function generateClassifyFunction(){
+
+  let groupId = 0;
+
+  const { combinedPattern, groupToInfo } = generateCombinedPattern();
+  const before = document.getElementById("window_before").value;
+  const middle = document.getElementById("window_max").value;
+  const groupToInfoStr = JSON.stringify(groupToInfo, null, 4);
+
+  const classifyFn = `import re, json
+
+# Precompile the regex pattern globally
+combined_pattern = r"""${combinedPattern}"""
+compiled_pattern = re.compile(combined_pattern, re.IGNORECASE)
+
+# The group_to_info structure is passed as a string and must be evaluated (e.g., via eval or a safe parser)
+group_to_info = ${groupToInfoStr}  # Assuming the group_to_info is passed as a dictionary or JSON string
+
+new_group_to_info = {}
+
+for group_name, info in group_to_info.items():
+    # Extract className, polarity, and weight
+    class_name = info["className"]
+    polarity = info["polarity"]
+    weight = info["weight"]
+    positional = info["positional"]
+    
+    # Store them as a tuple in the new structure
+    new_group_to_info[group_name] = (class_name, polarity, weight, positional)
+group_to_info = new_group_to_info
+
+
+def classify(text, min_score=0.5, multiply=1.0, index=${before}, token_count=${middle}):
+    scores = {}
+    positions = {}
+    tokens = text.split()
+    token_offsets = []
+    offset = 0
+
+    # Compute token start positions
+    for token in tokens:
+        offset = text.find(token, offset)
+        token_offsets.append(offset)
+        offset += len(token)
+
+    # Detect if any positional weighting exists
+    has_positional = any(info[3] for info in group_to_info.values())
+
+    # Compute center index from given index and token count
+    center_position = None
+    if index is not None:
+        center_position = index + (token_count - 1) / 2.0
+
+    # Initialize scores and positions
+    for group_name, (class_name, _, _, _) in group_to_info.items():
+        scores.setdefault(class_name, 0.0)
+        positions.setdefault(class_name, [])
+
+    # Match and score
+    for match in compiled_pattern.finditer(text):
+        match_start = match.start()
+        token_idx = next((i + 1 for i, off in enumerate(token_offsets) if off >= match_start), len(tokens))
+
+        for group_name, matched_value in match.groupdict().items():
+            if matched_value:
+                class_name, polarity, weight, positional = group_to_info[group_name]
+                sign = 1 if polarity == "positive" else -1
+
+                if has_positional and positional and center_position is not None:
+                    # Positional weighting active
+                    distance = abs(token_idx - center_position)
+                    contribution = (1.0 / (1.0 + distance)) * multiply * weight * sign
+                else:
+                    # No positional weighting (or globally disabled)
+                    contribution = weight * sign
+
+                scores[class_name] += contribution
+                positions[class_name].append(token_idx)
+
+    # Final scoring & normalization
+    final_scores = {}
+
+    if has_positional:
+      # No normalization, raw scores only
+      if not scores or all(v == 0.0 for v in scores.values()):
+        yield ('class', 'classify_conf')
+        yield ("unknown", False)
+        return
+
+      sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+      top_label, top_score = sorted_scores[0]
+      second_score = sorted_scores[1][1] if len(sorted_scores) > 1 else float('-inf')
+    
+      # Confidence based on raw scores difference with threshold 0.1
+      confidence = (top_score - second_score) >= 0.3
+      if confidence:
+        yield ('class', 'classify_conf')
+        yield (top_label, top_score)
+      else:
+        yield ('class', 'classify_conf')
+        yield (top_label, confidence)
+
+    else:
+        # Match classify2 output: no normalization, raw scores only
+        if not scores:
+            yield ('class', 'classify_conf')
+            yield ("unknown", False)
+
+        classcount = len(scores)
+        if classcount > 1:
+            sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+            top_label, top_score = sorted_scores[0]
+            second_score = sorted_scores[1][1] if len(sorted_scores) > 1 else float('-inf')
+            confidence = (top_score - second_score) >= 1.0
+
+            yield ('class', 'classify_conf')
+            yield (top_label, confidence)
+        else:
+            top_label, top_score = next(iter(scores.items()))
+            if top_score > 0:
+                yield ('class', 'classify_conf')
+                yield (top_label, top_score)
+            else:
+                yield ('class', 'classify_conf')
+                yield (top_label, False)
+
+`;
+
+
+return classifyFn;
+
+}
+
+let aggregationSkipped = false;
+
+function getcurrentcode(){
+  const pattern = document.getElementById("pattern").value;
+  const dataset = document.getElementById("dataset").value;
+  const before = document.getElementById("window_before").value;
+  const after = document.getElementById("window_after").value;
+  const max = document.getElementById("window_max").value;
+  const llmPromptRaw = document.getElementById("llm_prompt").value.trim();
+  const llmPrompt = JSON.stringify(llmPromptRaw);
+
+  const steps = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
+  const normalizefunc = generateNormalizeFunction(steps);
+  const classify = generateClassifyFunction();
+  let aggr = "# Aggregation has been skipped"; 
+  if (aggregationSkipped === false)
+   aggr = generateAggregateUDF() + "\n" + "aggregate_results.registered = True";
+  let llmFunction = "# Empty LLM prompt";
+  if (llmPrompt != '""')
+      llmFunction = `def llm_extract(text):
+    prompt = ${llmPrompt}
+    return call_llm(prompt + "\\n" + text) 
+llm_extract.registered = True
+`;
+
+  const pyudfs = `
+# Python UDFs  
+  
+# UDF normalize
+${normalizefunc}
+normalize.registered = True
+
+# UDF llm_extract
+${llmFunction}
+
+#UDF classify
+${classify}
+classify.registered = True
+
+# UDF aggregate_results
+${aggr}
+
+`;
+
+
+let llm_innerquery = `SELECT
+    doi, classify_conf,
+    CASE
+      WHEN classify_conf != FALSE THEN class
+      ELSE llm_extract(text_snippet)
+    END AS class,
+    text_snippet
+  FROM`;
+if (llmPrompt === '""')
+    llm_innerquery = "";
+let sqlcode1;
+if (aggregationSkipped) {
+   sqlcode1 = `
+-- YeSQL Query
+SELECT doi, class, token, text_snippet, classify_conf
+FROM (
+    ${llm_innerquery}
+   (
+    SELECT
+      doi,
+      classify(text_snippet), 
+      token, 
+      text_snippet
+    FROM (
+      SELECT
+        doi,
+        textwindow2s(
+          normalize(text), 
+          ${before}, ${max}, ${after}, 
+          '${pattern}'
+        )
+      FROM (select * from ${dataset})
+    )
+  )
+) AS classify_result where classify_conf
+`;
+}
+else {
+    
+ sqlcode1 = `
+-- YeSQL Query
+SELECT doi, c1 as class, c2 as confidence, c3 as textsnippet FROM (
+SELECT doi, jsplit(results) FROM (
+SELECT doi, aggregate_results(class, classify_conf, text_snippet) as results
+FROM (
+     ${llm_innerquery}
+   (
+    SELECT
+      doi, text_snippet,
+      classify(text_snippet)
+    FROM (
+      SELECT
+        doi,
+        textwindow2s(
+          normalize(text), 
+          ${before}, ${max}, ${after}, 
+          '${pattern}'
+        ) 
+      FROM ${dataset}
+    )
+  )
+) AS classify_result
+GROUP BY doi)) where confidence>0;
+`;
+
+}
+
+return pyudfs.trim() + "\n" + sqlcode1.trim(); 
+
+}
+
+function setActive(button) {
+  const buttons = document.querySelectorAll('.action-btn');
+  buttons.forEach(btn => btn.classList.remove('active'));
+  if (button) {
+    button.classList.add('active');
+  }
+}
+
+function editQuery() {
+
+  const output = document.getElementById('output');
+  output.style.display = 'None';
+  const resultbox = document.getElementById('results');
+  resultbox.style.display = 'None';
+  const queryBox = document.getElementById('queryBoxContainer');
+  queryBox.style.display = 'block';
+  
+}
+
+
+function generateQuery(confirm) {
+  generate();
+  const button = document.getElementById("generate-btn");
+  button.innerText = "Reload YeSQL";
+  
+  const editorbutton = document.getElementById('editor-btn');
+  editorbutton.style.display = '';
+  
+  const container = document.getElementById("config-container");
+  if (container.innerHTML.trim() === "") {
+      load_aggregate_section('invisible');
+  }
+  const output = document.getElementById('output');
+  output.style.display = 'None';
+  const resultbox = document.getElementById('results');
+  resultbox.style.display = 'None';
+  const queryBox = document.getElementById('queryBoxContainer');
+  queryBox.style.display = 'block';
+
+    let pythonCode = pythonEditor.getValue();
+    let sqlCode = sqlEditor.getValue();
+let currentcode = getcurrentcode();
+if (pythonCode+"\n"+sqlCode != currentcode && pythonCode+ "\n" + sqlCode != "\n"){
+if (confirm === true){
+  Swal.fire({
+  title: '💡 Confirm Action',
+  text: "Reloading YeSQL query from specs?",
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#d33',    // red
+  cancelButtonColor: '#3085d6',        // blue
+  confirmButtonText: 'Yes',
+  cancelButtonText: 'Cancel',
+  backdrop: true, // dark background
+  customClass: {
+    popup: 'rounded-xl shadow-lg'
+  }
+}).then((result) => {
+  if (result.isConfirmed) {
+    sqlCode1 = '';
+    sqlEditor.setValue(sqlCode1);
+  } 
+
+let sqlCode = sqlEditor.getValue();
+    if (sqlCode === '') {
+  
+    fullCode = currentcode;
+    const [pyudfs, sqlcode] = fullCode.split('-- YeSQL Query');
+    pythonEditor.setValue(pyudfs.trim());
+    sqlEditor.setValue('-- YeSQL Query'+'\n'+sqlcode.trim());
+    }
+    });
+}
+else {
+    sqlCode1 = '';
+    sqlEditor.setValue(sqlCode1);
+    let sqlCode = sqlEditor.getValue();
+     if (sqlCode === '') {
+  
+    fullCode = currentcode;
+    const [pyudfs, sqlcode] = fullCode.split('-- YeSQL Query');
+    pythonEditor.setValue(pyudfs.trim());
+    sqlEditor.setValue('-- YeSQL Query'+'\n'+sqlcode.trim());
+    }
+
+}
+}
+else {
+  if (pythonCode+ "\n" + sqlCode == "\n"){
+   
+    fullCode = currentcode;
+    const [pyudfs, sqlcode] = fullCode.split('-- YeSQL Query');
+    pythonEditor.setValue(pyudfs.trim());
+    sqlEditor.setValue('-- YeSQL Query'+'\n'+sqlcode.trim());
+  }
+  }
+     
+}
+
+
+function extractErrorSnippet(htmlMessage) {
+  if (!htmlMessage) return "";
+  // Parse the HTML string
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlMessage, "text/html");
+  const td = doc.querySelector("td");
+
+  if (!td) return "";
+
+  const tdText = td.textContent.trim();
+
+  // Try to match line-specific error pattern: 'at line 5: message...'
+  const lineErrorMatch = tdText.match(/Python UDF code, at line \d+:\s*(.*)/);
+  if (lineErrorMatch) {
+    return lineErrorMatch[1].trim();
+  }
+
+  // Otherwise, return the full td text (e.g. SQL error message)
+  return tdText;
+}
+
+
+function execute() {
+    // Get the latest content from CodeMirror editors
+    let pythonCode = pythonEditor.getValue();
+    
+    let sqlCode = sqlEditor.getValue();
+    if (sqlCode === '') {
+        const queryBox3 = document.getElementById('queryBoxContainer');
+        queryBox3.style.display = 'None';  
+        const resultsContainer = document.getElementById('results');
+        resultsContainer.style.display = 'block';
+        generateQuery(true);  
+        const queryBox4 = document.getElementById('queryBoxContainer');
+        queryBox3.style.display = 'None';  
+        const resultsContainer1 = document.getElementById('results');
+        resultsContainer.style.display = 'block';
+        sqlCode = sqlEditor.getValue(); 
+        pythonCode = pythonEditor.getValue();
+   
+    const selectedDataset = document.getElementById('dataset').value;
+
+    // Combine Python UDFs and SQL query
+    const yesqlcode = pythonCode + "\n" + sqlCode;
+    document.getElementById('results').innerHTML = `Executing the query on the ${selectedDataset} dataset...`;
+    
+    const payload = {
+      dataset: selectedDataset,
+      query: yesqlcode
+    };
+
+    fetch('/api/execute', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+  console.log('Execution result:', result);
+
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.innerHTML = `<h3 style="color: #2c3e50; margin: 0;">Results on ${selectedDataset} dataset</h3>${result.message}`;
+  
+const lineNumber = extractLineNumber(result.message);
+const isSqlError = result.message && result.message.includes("SQLError:");
+if (lineNumber !== null || isSqlError) {
+  Swal.fire({
+    icon: 'error',
+    title: 'YeSQL Error',
+    text: extractErrorSnippet(result.message),
+    footer: 'Please check the code and try again.'
+  });
+
+  setTimeout(() => {
+    if (lineNumber !== null) {
+      pythonEditor.scrollIntoView({ line: lineNumber - 1, ch: 0 }, 100);
+      highlightErrorLine(lineNumber, extractErrorSnippet(result.message));
+    }
+  }, 50);
+
+  pythonEditor.focus();
+  setActive(document.getElementById('editor-btn'));
+
+  const output = document.getElementById('output');
+  output.style.display = 'none';
+
+  const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'block';
+
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'none';
+}
+else{
+  const output = document.getElementById('output');
+    output.style.display = 'None';
+  const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'None';  
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'block';
+
+} 
+  
+  // Select the table only after the content has been updated
+  const resultTable = resultsContainer.querySelector('table');
+  if (resultTable) {
+    resultTable.style.marginTop = '-20px';
+  }
+
+  const prettyTable = resultsContainer.querySelector('table.pretty-table');
+  if (prettyTable) {
+    prettyTable.style.marginTop = '-20px';
+  }
+})
+
+    .catch(error => {
+      console.error('Execution failed:', error);
+      alert('Query execution failed.');
+    });
+
+    }
+
+    else {
+let outputText = document.getElementById('output').textContent;
+generate('invisible');
+ 
+let outputText2 = document.getElementById('output').textContent;
+ 
+      if (outputText!=outputText2){
+         Swal.fire({
+			title: '💡 Confirm Action',
+  			text: "Click 'Fresh' to execute fresh YeSQL code from recently edited specs, or 'Existing' to execute your existing code.",
+  			icon: 'warning',
+  			showCancelButton: true,
+  			confirmButtonColor: '#d33',    // red
+  			cancelButtonColor: '#3085d6',        // blue
+  			confirmButtonText: 'Fresh',
+  			cancelButtonText: 'Existing',
+  			backdrop: true, // dark background
+  			customClass: {
+    			popup: 'rounded-xl shadow-lg'
+  			}
+			}).then((result) => {
+  			if (result.isConfirmed) {
+    			 generateQuery(false);
+        		 //const queryBox2 = document.getElementById('queryBoxContainer');
+        		 //queryBox2.style.display = 'None'; 
+        		 sqlCode = sqlEditor.getValue(); 
+        		 pythonCode = pythonEditor.getValue();
+        		 
+  			} 
+  		   //const queryBox3 = document.getElementById('queryBoxContainer');
+    //queryBox3.style.display = 'None';  
+      const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'None';  
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'block';
+    
+    //const resultbox = document.getElementById('results');
+    //resultbox.style.display = 'block';
+    const selectedDataset = document.getElementById('dataset').value;
+
+    // Combine Python UDFs and SQL query
+    const yesqlcode = pythonCode + "\n" + sqlCode;
+    document.getElementById('results').innerHTML = `Executing the query on the ${selectedDataset} dataset...`;
+    
+    const payload = {
+      dataset: selectedDataset,
+      query: yesqlcode
+    };
+
+    fetch('/api/execute', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+  console.log('Execution result:', result);
+
+  // Inject result content
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.innerHTML = `<h3 style="color: #2c3e50; margin: 0;">Results on ${selectedDataset} dataset</h3>${result.message}`;
+  const lineNumber = extractLineNumber(result.message);
+const isSqlError = result.message && result.message.includes("SQLError:");
+if (lineNumber !== null || isSqlError) {
+  Swal.fire({
+    icon: 'error',
+    title: 'YeSQL Error',
+    text: extractErrorSnippet(result.message),
+    footer: 'Please check the code and try again.'
+  });
+
+  setTimeout(() => {
+    if (lineNumber !== null) {
+      pythonEditor.scrollIntoView({ line: lineNumber - 1, ch: 0 }, 100);
+      highlightErrorLine(lineNumber, extractErrorSnippet(result.message));
+    }
+  }, 50);
+
+  pythonEditor.focus();
+  setActive(document.getElementById('editor-btn'));
+
+  const output = document.getElementById('output');
+  output.style.display = 'none';
+
+  const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'block';
+
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'none';
+}
+else{
+const output = document.getElementById('output');
+    output.style.display = 'None';
+  const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'None';  
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'block';
+
+}  
+  
+  // Try to select the table (if it exists) and apply style
+  const resultTable = resultsContainer.querySelector('table');
+  if (resultTable) {
+    resultTable.style.marginTop = '-20px';
+  }
+
+  // Also try to apply to the .pretty-table class (if it exists)
+  const prettyTable = resultsContainer.querySelector('table.pretty-table');
+  if (prettyTable) {
+    prettyTable.style.marginTop = '-20px';
+  }
+
+  // optionally display result on the page
+})
+    .catch(error => {
+      console.error('Execution failed:', error);
+      alert('Query execution failed.');
+    });
+      })
+    }
+    else {
+      const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'None';  
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'block';
+           //const queryBox3 = document.getElementById('queryBoxContainer');
+    //queryBox3.style.display = 'None';  
+    
+    //const resultbox = document.getElementById('results');
+    //resultbox.style.display = 'block';
+    const selectedDataset = document.getElementById('dataset').value;
+
+    // Combine Python UDFs and SQL query
+    const yesqlcode = pythonCode + "\n" + sqlCode;
+    document.getElementById('results').innerHTML = `Executing the query on the ${selectedDataset} dataset...`;
+    
+    const payload = {
+      dataset: selectedDataset,
+      query: yesqlcode
+    };
+
+    fetch('/api/execute', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log('Execution result:', result);
+      document.getElementById('results').innerHTML = `<h3 style="color: #2c3e50; margin: 0;">Results on ${selectedDataset} dataset</h3>${result.message}`;
+      const lineNumber = extractLineNumber(result.message);
+const isSqlError = result.message && result.message.includes("SQLError:");
+if (lineNumber !== null || isSqlError) {
+  Swal.fire({
+    icon: 'error',
+    title: 'YeSQL Error',
+    text: extractErrorSnippet(result.message),
+    footer: 'Please check the code and try again.'
+  });
+
+  setTimeout(() => {
+    if (lineNumber !== null) {
+      pythonEditor.scrollIntoView({ line: lineNumber - 1, ch: 0 }, 100);
+      highlightErrorLine(lineNumber, extractErrorSnippet(result.message));
+    }
+  }, 50);
+  if (isSqlError)
+      sqlEditor.focus();
+  else
+      pythonEditor.focus();
+  setActive(document.getElementById('editor-btn'));
+
+  const output = document.getElementById('output');
+  output.style.display = 'none';
+
+  const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'block';
+
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'none';
+}
+else{
+const output = document.getElementById('output');
+    output.style.display = 'None';
+  const queryBox3 = document.getElementById('queryBoxContainer');
+  queryBox3.style.display = 'None';  
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.style.display = 'block';
+
+}  
+  
+      document.querySelector('#results table').style.marginTop = '-20px';
+      document.querySelector('#results table.pretty-table').style.marginTop = '-20px';
+      // optionally display result on the page
+    })
+    .catch(error => {
+      console.error('Execution failed:', error);
+      alert('Query execution failed.');
+    });
+    
+    
+    }
+    }
+    
+  
+  }
+document.addEventListener('DOMContentLoaded', function () {
+
+  fetch('/api/datasets')
+    .then(response => response.json())
+    .then(data => {
+      const datasets = data.datasets;  // <-- FIXED
+      const select = document.getElementById('dataset');
+      datasets.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        option.textContent = name;
+        select.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error('Error loading datasets:', error);
+      alert(error);
+    });
+});
+
+function autoResize(editor) {
+  const lineCount = editor.lineCount();
+  const lineHeight = parseFloat(getComputedStyle(editor.getWrapperElement()).lineHeight) || 20;
+  const padding = 10; // extra space to avoid tight layout
+
+  const newHeight = lineCount * lineHeight;
+  const minHeight = 100;
+
+  editor.getWrapperElement().style.height = Math.max(newHeight, minHeight) + "px";
+  editor.refresh();
+}
+
+function autoResize2(cm) {
+  const wrapper = cm.getWrapperElement();
+  const scroller = cm.getScrollerElement();
+
+  // Temporarily clear height so content can shrink
+  wrapper.style.height = 'auto';
+
+  // Ensure CodeMirror recalculates layout
+  cm.refresh();
+
+  // Set height to actual scrollHeight
+  const newHeight = scroller.scrollHeight;
+  wrapper.style.height = newHeight + 'px';
+}
+
+const pythonEditor = CodeMirror.fromTextArea(document.getElementById("pythonBox"), {
+    theme: "darcula",
+    mode: "python",
+    lineNumbers: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    styleActiveLine: true,
+    lineWrapping: true,
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    extraKeys: {
+      "Shift-Tab": "autocomplete",
+      "Ctrl-Shift-Enter": "toggleComment"
+    }
+  });
+
+  const sqlEditor = CodeMirror.fromTextArea(document.getElementById("sqlBox"), {
+    theme: "darcula",
+    mode: "sql",
+    lineNumbers: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    styleActiveLine: true,
+    lineWrapping: true,
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    extraKeys: {
+      "Shift-Tab": "autocomplete",
+      "Ctrl-Shift-Enter": "toggleComment"
+    }
+  });
+[pythonEditor, sqlEditor].forEach(editor => {
+
+  editor.on('change', () => {
+    autoResize(editor);
+  });
+
+  // Do NOT call autoResize initially — it will trigger only after first edit
+});
+
+function generateAggregateUDF() {
+  const priorityList = [...document.querySelectorAll('#priority-order li')].map(li => li.textContent.trim());
+  const threshold = parseFloat(document.getElementById('confidence-threshold').value);
+  const tieStrategy = document.getElementById('tie-strategy').value;
+
+  const priorityMap = priorityList.reduce((obj, label, idx) => {
+    obj[label] = idx;
+    return obj;
+  }, {});
+
+  // Extract custom rules
+  const rules = [];
+  document.querySelectorAll('.rule').forEach(ruleEl => {
+    const selects = ruleEl.querySelectorAll('select');
+    if (selects.length === 5) {
+      const conditionLabel = selects[1].value;
+      const conditionType = selects[2].value;
+      const resultLabel = selects[4].value;
+      rules.push({ conditionLabel, conditionType, resultLabel });
+    }
+  });
+
+  // Python UDF generation
+  let py = `from collections import defaultdict, Counter\n`;
+  py += 'import json\n'
+  py += '# UDF aggregate_results\n'
+  py += 'class aggregate_results:\n'
+  py += '  \n'
+  py += '  registered = True\n'
+  py += '  \n'
+  py += '  def __init__(self):\n'
+  py += '    self.priority = {\n'
+  py += '      "Full_and_good": 0,\n'
+  py += '      "On_request": 1,\n'
+  py += '      "No_Immediate_Access": 2,\n'
+  py += '      "No_Data": 3\n'
+  py += '    }\n'
+  py += '    self.threshold = 0.5\n'
+  py += '    self.scores = defaultdict(list)\n'
+  py += '  \n'
+  py += '  def step(self, prediction, conf, snippet):\n'
+  py += '    self.scores[prediction].append((conf, snippet))\n'
+  py += '  \n'
+  py += '  def final(self):\n'
+  py += '    # Custom rules\n'
+  py += '    if "Full_and_good" in self.scores and self.scores["Full_and_good"][0][0] > 0:\n'
+  py += '      return json.dumps(["Full_and_good", self.scores["Full_and_good"][0][0], self.scores["Full_and_good"][0][1]])\n'
+  py += '  \n'
+  py += '    if not self.scores:\n'
+  py += '      return json.dumps(("unknown", "unknown", "unknown"))\n'
+  py += '  \n'
+  py += '    print(self.scores)\n'
+  py += '    label_avg = {k: sum(conf for conf, _ in v) / len(v) for k, v in self.scores.items()}\n'
+  py += '    sorted_by_priority = sorted(label_avg.items(), key=lambda x: self.priority.get(x[0], 1e9))\n'
+  py += '  \n'
+  py += '    return json.dumps((\n'
+  py += '      sorted_by_priority[0][0],\n'
+  py += '      self.scores[sorted_by_priority[0][0]][0][0],\n'
+  py += '      self.scores[sorted_by_priority[0][0]][0][1]\n'
+  py += '    ) if sorted_by_priority else ("unknown", "unknown", "unknown"))\n'
+  // Output Python code
+  return py;
+}
+
+
+
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+
+function getClassNamesFromSubsect1() {
+  const listItems = document.querySelectorAll('#subsect1 ul#priority-order li');
+  const classNames = Array.from(listItems).map(li => li.textContent.trim());
+  return classNames;
+}
+
+function setsAreEqual(a, b) {
+  if (a.size !== b.size) return false;
+  for (const item of a) {
+    if (!b.has(item)) return false;
+  }
+  return true;
+}
+
+function load_aggregate_section(visibility) {
+  const container = document.getElementById("config-container");
+  const resultbox = document.getElementById('configure-btn');
+  
+ const classNames = classRules
+  .map(rule => rule.querySelector('.class-name').value.trim())
+  .filter(name => name); // remove empty strings
+
+  const priorityListItems = classNames.map(name =>
+    `<li draggable="true">${name}</li>`
+  ).join('');
+  const optionListItems = classNames.map(name =>
+    `<<option value="${name}">${name}</option>`
+  ).join('');
+if (container.innerHTML.trim() != ""){
+  const myprintedlist = Array.from(
+  document.querySelectorAll('#subsect1 ul#priority-order li')
+).map(li => li.textContent.trim()).filter(name => name);
+  const set1 = new Set(myprintedlist);
+  const set2 = new Set(classNames);
+  
+     
+  if (setsAreEqual(set1,set2)){
+      alert('sets are equal show list');
+  }
+  else {
+      alert('sets are different ask todo')
+  }
+
+}
+  if (visibility === "visible"){
+  document.getElementById("configure-btn").innerText = "Reload";
+  if (1===1) {
+    container.innerHTML = `
+      <br><br>
+      <div class="subsection" id="subsect1">
+        <label>Class Priority Order (drag to reorder)</label>
+        <ul id="priority-order" class="draggable-list">
+          ${priorityListItems}
+        </ul>
+      </div>
+
+      <div class="subsection" id="subsect2">
+        <div id="threshold-label">
+          <label for="confidence-threshold">Confidence Threshold</label>
+          <span id="threshold-value">0.5</span>
+        </div>
+        <input type="range" id="confidence-threshold" min="0" max="1" step="0.01" value="0.5"
+               oninput="document.getElementById('threshold-value').innerText = this.value">
+      </div>
+
+      <div class="subsection" id="subsect3">
+        <label for="tie-strategy">Tie-breaking Strategy</label>
+        <select id="tie-strategy">
+          <option value="priority">Use highest priority label</option>
+          <option value="frequency">Use most frequent label</option>
+          <option value="confidence">Use highest average confidence</option>
+          <option value="unknown">Return unknown</option>
+        </select>
+      </div>
+
+      <div class="subsection" id="subsect4">
+        <label>Custom Rules</label>
+        <div class="rule">
+          <select>
+            <option>If</option>
+          </select>
+          <select>
+           ${optionListItems}
+          </select>
+          <select>
+            <option>is present</option>
+            <option>is most confident</option>
+          </select>
+          <select>
+            <option>then return</option>
+          </select>
+          <select>
+            ${optionListItems}
+          </select>
+        </div>
+        <button onclick="addrule()">Add Rule</button>
+      </div>
+    `;
+  }
+  else{
+    const sect1 = document.getElementById('subsect1');
+    sect1.style.display = 'block';
+    const sect2 = document.getElementById('subsect2');
+    sect2.style.display = 'block';
+    const sect3 = document.getElementById('subsect3');
+    sect3.style.display = 'block';
+    const sect4 = document.getElementById('subsect4');
+    sect4.style.display = 'block';
+  
+  } 
+  }
+  else{
+  container.innerHTML = `
+   <div class="subsection" style="display: none;" id = "subsect1">
+        <label>Class Priority Order (drag to reorder)</label>
+        <ul id="priority-order" class="draggable-list">
+          ${priorityListItems}
+        </ul>
+      </div>
+
+      <div class="subsection" style="display: none;" id="subsect2">
+        <div id="threshold-label">
+          <label for="confidence-threshold">Confidence Threshold</label>
+          <span id="threshold-value">0.5</span>
+        </div>
+        <input type="range" id="confidence-threshold" min="0" max="1" step="0.01" value="0.5"
+               oninput="document.getElementById('threshold-value').innerText = this.value">
+      </div>
+
+      <div class="subsection" style="display: none;" id="subsect3">
+        <label for="tie-strategy">Tie-breaking Strategy</label>
+        <select id="tie-strategy">
+          <option value="priority">Use highest priority label</option>
+          <option value="frequency">Use most frequent label</option>
+          <option value="confidence">Use highest average confidence</option>
+          <option value="unknown">Return unknown</option>
+        </select>
+      </div>
+
+      <div class="subsection" style="display: none;" id="subsect4">
+        <label>Custom Rules</label>
+        <div class="rule">
+          <select>
+            <option>If</option>
+          </select>
+          <select>
+           ${optionListItems}
+          </select>
+          <select>
+            <option>is present</option>
+            <option>is most confident</option>
+          </select>
+          <select>
+            <option>then return</option>
+          </select>
+          <select>
+            ${optionListItems}
+          </select>
+        </div>
+        <button onclick="addrule()">Add Rule</button>
+      </div>
+    `;
+  
+  
+  }
+  
+  const list = document.getElementById('priority-order');
+  let draggingEl;
+
+  list.addEventListener('dragstart', (e) => {
+    draggingEl = e.target;
+    e.target.classList.add('dragging');
+  });
+
+  list.addEventListener('dragend', (e) => {
+    e.target.classList.remove('dragging');
+  });
+
+  list.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const afterEl = getDragAfterElement(list, e.clientY);
+    if (afterEl == null) {
+      list.appendChild(draggingEl);
+    } else {
+      list.insertBefore(draggingEl, afterEl);
+    }
+  });
+}
+
+function addrule() {
+
+const classNames = classRules
+  .map(rule => rule.querySelector('.class-name').value.trim())
+  .filter(name => name); // remove empty strings
+
+
+
+  const priorityListItems = classNames.map(name =>
+    `<li draggable="true">${name}</li>`
+  ).join('');
+  const optionListItems = classNames.map(name =>
+    `<<option value="${name}">${name}</option>`
+  ).join('');
+  const ruleSection = document.querySelector('#config-container .subsection:last-child'); // your Custom Rules section
+  const ruleDiv = document.createElement('div');
+  ruleDiv.className = 'rule';
+  ruleDiv.innerHTML = `
+    <select>
+      <option>If</option>
+    </select>
+    <select>
+      ${optionListItems}
+    </select>
+    <select>
+      <option>is present</option>
+      <option>is most confident</option>
+    </select>
+    <select>
+      <option>then return</option>
+    </select>
+    <select>
+     ${optionListItems}
+    </select>
+  `;
+  
+  // Insert before the Add Rule button
+  const addButton = ruleSection.querySelector('button');
+  ruleSection.insertBefore(ruleDiv, addButton);
+}
+
+function extractLineNumber(errorMsg) {
+  const match = errorMsg.match(/at line (\d+)/);
+  if (match) {
+    return parseInt(match[1], 10);
+  }
+  // No line number found → no error line to highlight
+  return null;
+}
+</script>
+</body>
+</html>
