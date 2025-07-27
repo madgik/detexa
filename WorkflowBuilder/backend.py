@@ -28,7 +28,7 @@ from detexa import yesql
 from detexa.yesql import functions
 app = Flask(__name__)
 CORS(app)
-app.secret_key = 'REMOVED_SECRET'
+app.secret_key = 'SECRETKEY'
 
 
 def summarize_exception(e):
